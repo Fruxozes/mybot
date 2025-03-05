@@ -2,11 +2,12 @@ from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, MessageHandler
 import logging
 from telegram.ext import filters
+import os
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
 
-BOT_TOKEN = "7566090908:AAGTqHEgryIB8rvSciKuDexIgl0pV6hCrIE"
+BOT_TOKEN = os.getenv('Bot_token')
 
 START_ANIMATION_URL = "https://media.tenor.com/eTrT0gLmtG0AAAAi/monkey-greeting-monkey.gif"
 
