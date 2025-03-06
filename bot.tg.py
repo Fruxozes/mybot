@@ -1,5 +1,7 @@
+import telegram
 from telegram import Update
-from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, MessageHandler
+from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, MessageHandler, Application
+from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, CallbackContext
 import logging
 from telegram.ext import filters
 import os
@@ -12,15 +14,35 @@ BOT_TOKEN = os.getenv('Bot_token')
 START_ANIMATION_URL = "https://media.tenor.com/eTrT0gLmtG0AAAAi/monkey-greeting-monkey.gif"
 
 
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    try:
-        await context.bot.send_animation(chat_id=update.effective_chat.id, animation=START_ANIMATION_URL,
-                                         caption="Приветствую, ознакомься с командами бота!")
-        logging.info(
-            f"Отправлена гифка пользователю {update.message.from_user.username} ({update.message.from_user.id})")
-    except Exception as e:
-        logging.error(f"Ошибка при отправке гифки: {e}")
+async def start(update: Update, context: CallbackContext) -> None:
+    keyboard = [
+        [telegram.InlineKeyboardButton("Кто создатель бота?", callback_data='1')],
+        [telegram.InlineKeyboardButton("Для чего бот был создан?", callback_data='2')],
+        [telegram.InlineKeyboardButton("Почему тут нету ИИ?", callback_data='3')],
+    ]
 
+    reply_markup = telegram.InlineKeyboardMarkup(keyboard)
+
+    await update.message.reply_text('Выберите действие:', reply_markup=reply_markup)
+
+
+async def button(update: Update, context: CallbackContext) -> None:
+    query = update.callback_query
+
+    await query.answer()
+
+    button_data = query.data
+
+    if button_data == '1':
+        text = "Ахуенный парень!"
+    elif button_data == '2':
+        text = "Да какая нахуй разница ваще!"
+    elif button_data == '3':
+        text = "Потому что создателю лень его интегрировать!"
+    else:
+        text = "Неизвестная кнопка."
+
+    await context.bot.send_message(chat_id=query.message.chat_id, text=text)
 
 USER_STICKERS = {
     7146058196: "CAACAgIAAxkBAAENK7hnx_7h6Sz8PWUog-h6kCIq9XfrjgACYSQAAjMYSEllM27K13R3HDYE",
@@ -30,40 +52,8 @@ USER_STICKERS = {
     6615649601: "CAACAgIAAxkBAAENLzhnyFAphusldZD9aFaZYHyw4cd_TgACTGgAAkdBsEqdnfeDXo-aeDYE"
 }
 
-
-async def vopros(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    try:
-        response_text = "а тебе какая нахуй разница?"
-        await update.message.reply_text(response_text)
-        logging.info(
-            f"Отправлен ответ на команду /vopros пользователю {update.message.from_user.username} ({update.message.from_user.id})")
-    except Exception as e:
-        logging.error(f"Ошибка при обработке команды /vopros: {e}")
-
-
-async def creator(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    try:
-        response_text = "Заебатый тип, а че?"
-        await  update.message.reply_text(response_text)
-        logging.info(
-            f"Отправлен ответ на команду /creator пользователю {update.message.from_user.username} ({update.message.from_user.id}")
-    except Exception as e:
-        logging.error(f"Ошибка при обработке команды /creator: {e}")
-
-
-async def ai(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    try:
-        respose_text = "да хуй, она не работает, так что чильте"
-        await update.message.reply_text(respose_text)
-        logging.info(
-            f"Отправлен ответ на команду /ai пользователю {update.message.from_user.username} ({update.message.from_user.id}")
-    except Exception as e:
-        logging.error(f"Ошибка при обработке команды /ai: {e}")
-
-
 async def handle_specific_user_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     logging.info(f"handle_specific_user_message вызвана!")
-
     try:
         user = update.message.from_user
         user_id = user.id
@@ -130,16 +120,12 @@ async def no_reaction(update: Update, context: ContextTypes.DEFAULT_TYPE):
         logging.error(f"Ошибка при обработке сообщения 'пидора ответ': {e}")
 
 
-def main():
+def main() -> None:
     app = ApplicationBuilder().token(BOT_TOKEN).build()
 
     app.add_handler(CommandHandler("start", start))
 
-    app.add_handler(CommandHandler("vopros", vopros))
-
-    app.add_handler(CommandHandler("creator", creator))
-
-    app.add_handler(CommandHandler("ai", ai))
+    app.add_handler(CallbackQueryHandler(button))
 
     skull_filter = filters.Regex(pattern=r"💀|☠️")
 
