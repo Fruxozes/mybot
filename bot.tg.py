@@ -11,8 +11,6 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 
 BOT_TOKEN = os.getenv('Bot_token')
 
-START_ANIMATION_URL = "https://media.tenor.com/eTrT0gLmtG0AAAAi/monkey-greeting-monkey.gif"
-
 
 async def start(update: Update, context: CallbackContext) -> None:
     keyboard = [
@@ -44,6 +42,7 @@ async def button(update: Update, context: CallbackContext) -> None:
 
     await context.bot.send_message(chat_id=query.message.chat_id, text=text)
 
+
 USER_STICKERS = {
     7146058196: "CAACAgIAAxkBAAENK7hnx_7h6Sz8PWUog-h6kCIq9XfrjgACYSQAAjMYSEllM27K13R3HDYE",
     1788991408: "CAACAgIAAxkBAAENLzRnyE_t8eWh9gbPT4srtZv-Tlm8OgACYzQAAuaA-EtdfQABBw0vp2A2BA",
@@ -51,6 +50,7 @@ USER_STICKERS = {
     1924072157: "CAACAgIAAxkBAAENLxlnyE3ai4xETmW36iaocLjsDHz56wACOjUAAnBegUiUGQHBPXcCcTYE",
     6615649601: "CAACAgIAAxkBAAENLzhnyFAphusldZD9aFaZYHyw4cd_TgACTGgAAkdBsEqdnfeDXo-aeDYE"
 }
+
 
 async def handle_specific_user_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     logging.info(f"handle_specific_user_message вызвана!")
